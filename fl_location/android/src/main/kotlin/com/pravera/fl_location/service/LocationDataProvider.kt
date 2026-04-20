@@ -169,9 +169,15 @@ class LocationDataProvider(private val context: Context) {
 		val interval = settings.interval ?: DEFAULT_LOCATION_INTERVAL
 		val distanceFilter = settings.distanceFilter ?: 0F
 
+        Log.d(TAG, "Starting location updates with interval: $interval ms, accuracy: $accuracy m, distanceFilter: $distanceFilter m")
+
 		return LocationRequest.Builder(accuracy, interval).apply {
 			setMinUpdateDistanceMeters(distanceFilter)
 			setMinUpdateIntervalMillis(interval)
-		}.build()
+            setMaxUpdateDelayMillis(0)
+            setGranularity(Granularity.GRANULARITY_FINE)
+            setWaitForAccurateLocation(true)
+            setMaxUpdateAgeMillis(1000L)
+        }.build()
 	}
 }
