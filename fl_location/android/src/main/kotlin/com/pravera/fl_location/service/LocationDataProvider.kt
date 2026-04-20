@@ -3,6 +3,7 @@ package com.pravera.fl_location.service
 import android.app.Activity
 import android.content.Context
 import android.content.IntentSender
+import android.location.Location
 import android.os.Build
 import android.os.Looper
 import android.util.Log
@@ -18,6 +19,7 @@ class LocationDataProvider(private val context: Context) {
 		private val TAG = LocationDataProvider::class.java.simpleName
 
 		private const val DEFAULT_LOCATION_INTERVAL = 5000L
+		private const val DEFAULT_ACCURACY_THRESHOLD = 20.0
 		private const val REQUEST_CHECK_SETTINGS = 0x1
 	}
 
@@ -117,6 +119,32 @@ class LocationDataProvider(private val context: Context) {
 		if (locationRequest == null || locationCallback == null) return
 
 		isRunningLocationUpdates = true
+
+		// Fetch an initial location immediately for faster first fix
+		try {
+			val initialRequest = CurrentLocationRequest.Builder()
+				.setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+				.setMaxUpdateAgeMillis(5000L)
+				.setDurationMillis(10000L)
+				.build()
+
+			locationProvider.getCurrentLocation(initialRequest, null)
+				.addOnSuccessListener { location ->
+					if (location != null && callback != null) {
+						val locationData = location.toLocationData()
+						if (locationData != null) {
+							Log.d(TAG, "Initial location: ${location.latitude}, ${location.longitude}, accuracy: ${location.accuracy}m, provider: ${location.provider}")
+							callback?.onUpdate(locationData)
+						}
+					}
+				}
+				.addOnFailureListener { e ->
+					Log.w(TAG, "getCurrentLocation failed, waiting for regular updates: ${e.message}")
+				}
+		} catch (e: SecurityException) {
+			Log.w(TAG, "SecurityException in getCurrentLocation: ${e.message}")
+		}
+
 		locationProvider.requestLocationUpdates(
 				locationRequest!!, locationCallback!!, Looper.getMainLooper())
 	}
@@ -132,33 +160,41 @@ class LocationDataProvider(private val context: Context) {
 		this.locationRequest = null
 	}
 
+	private fun Location.toLocationData(): LocationData? {
+		if (accuracy > DEFAULT_ACCURACY_THRESHOLD) {
+			Log.d(TAG, "Skipping inaccurate location: accuracy=${accuracy}m > threshold=${DEFAULT_ACCURACY_THRESHOLD}m, provider=$provider")
+			return null
+		}
+
+		var speedAccuracy: Double? = null
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			speedAccuracy = speedAccuracyMetersPerSecond.toDouble()
+		}
+
+		var isMock: Boolean? = null
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			isMock = this.isMock
+		}
+
+		return LocationData(
+			latitude = latitude,
+			longitude = longitude,
+			accuracy = accuracy.toDouble(),
+			altitude = altitude,
+			heading = bearing.toDouble(),
+			speed = speed.toDouble(),
+			speedAccuracy = speedAccuracy,
+			millisecondsSinceEpoch = time.toDouble(),
+			isMock = isMock,
+			provider = provider ?: "unknown"
+		)
+	}
+
 	private fun createLocationCallback(callback: LocationDataCallback): LocationCallback {
 		return object : LocationCallback() {
 			override fun onLocationResult(locationResult: LocationResult) {
 				val location = locationResult.lastLocation ?: return
-
-				var speedAccuracy: Double? = null
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-					speedAccuracy = location.speedAccuracyMetersPerSecond.toDouble()
-				}
-
-				var isMock: Boolean? = null
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-					isMock = location.isMock
-				}
-
-				val locationData = LocationData(
-					latitude = location.latitude,
-					longitude = location.longitude,
-					accuracy = location.accuracy.toDouble(),
-					altitude = location.altitude,
-					heading = location.bearing.toDouble(),
-					speed = location.speed.toDouble(),
-					speedAccuracy = speedAccuracy,
-					millisecondsSinceEpoch = location.time.toDouble(),
-					isMock = isMock
-				)
-
+				val locationData = location.toLocationData() ?: return
 				callback.onUpdate(locationData)
 			}
 		}
