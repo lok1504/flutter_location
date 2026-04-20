@@ -8,6 +8,7 @@ const Map<String, dynamic> dummyLocationJsonA = {
   'speedAccuracy': 100.0,
   'millisecondsSinceEpoch': 1724918047344.0,
   'isMock': true,
+  'provider': 'gps',
 };
 
 const Map<String, dynamic> dummyLocationJsonB = {
@@ -20,4 +21,5 @@ const Map<String, dynamic> dummyLocationJsonB = {
   'speedAccuracy': 120.0,
   'millisecondsSinceEpoch': 1624918047344.0,
   'isMock': false,
+  'provider': 'network',
 };

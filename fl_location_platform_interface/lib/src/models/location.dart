@@ -30,6 +30,9 @@ class Location {
   /// Whether the mock location.
   final bool isMock;
 
+  /// The location provider that produced this fix (e.g. gps, network, fused).
+  final String provider;
+
   /// Constructs an instance of [Location].
   const Location({
     required this.latitude,
@@ -42,6 +45,7 @@ class Location {
     required this.millisecondsSinceEpoch,
     required this.timestamp,
     required this.isMock,
+    required this.provider,
   });
 
   /// Constructs an instance of [Location] from [json].
@@ -56,14 +60,17 @@ class Location {
 
     double? millisecondsSinceEpoch = json['millisecondsSinceEpoch'] as double?;
     if (millisecondsSinceEpoch == null) {
-      millisecondsSinceEpoch =
-          DateTime.timestamp().millisecondsSinceEpoch.toDouble();
+      millisecondsSinceEpoch = DateTime.timestamp().millisecondsSinceEpoch
+          .toDouble();
     }
 
-    final DateTime timestamp =
-        DateTime.fromMillisecondsSinceEpoch(millisecondsSinceEpoch.toInt());
+    final DateTime timestamp = DateTime.fromMillisecondsSinceEpoch(
+      millisecondsSinceEpoch.toInt(),
+    );
 
     final bool isMock = json['isMock'] ?? false;
+
+    final String provider = json['provider'] as String? ?? 'unknown';
 
     return Location(
       latitude: latitude,
@@ -76,6 +83,7 @@ class Location {
       millisecondsSinceEpoch: millisecondsSinceEpoch,
       timestamp: timestamp,
       isMock: isMock,
+      provider: provider,
     );
   }
 
@@ -92,11 +100,14 @@ class Location {
       'millisecondsSinceEpoch': millisecondsSinceEpoch,
       'timestamp': timestamp.toString(),
       'isMock': isMock,
+      'provider': provider,
     };
   }
 
   @override
-  String toString() => 'Location($latitude, $longitude)';
+  String toString() =>
+      'Location(coordinates: $latitude, $longitude, accuracy: $accuracy, '
+      'timestamp: $timestamp, provider: $provider)';
 
   @override
   bool operator ==(Object other) =>
@@ -111,7 +122,8 @@ class Location {
       millisecondsSinceEpoch == other.millisecondsSinceEpoch &&
       timestamp.millisecondsSinceEpoch ==
           other.timestamp.millisecondsSinceEpoch &&
-      isMock == other.isMock;
+      isMock == other.isMock &&
+      provider == other.provider;
 
   @override
   int get hashCode =>
@@ -124,5 +136,6 @@ class Location {
       speedAccuracy.hashCode ^
       millisecondsSinceEpoch.hashCode ^
       timestamp.hashCode ^
-      isMock.hashCode;
+      isMock.hashCode ^
+      provider.hashCode;
 }

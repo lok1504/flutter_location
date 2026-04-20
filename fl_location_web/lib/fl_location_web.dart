@@ -13,8 +13,8 @@ import 'errors/position_unavailable_exception.dart';
 
 class FlLocationWeb extends FlLocationPlatform {
   FlLocationWeb(web.Navigator navigator)
-      : _permissions = navigator.permissions,
-        _geolocation = navigator.geolocation;
+    : _permissions = navigator.permissions,
+      _geolocation = navigator.geolocation;
 
   final web.Permissions _permissions;
   final web.Geolocation _geolocation;
@@ -28,8 +28,9 @@ class FlLocationWeb extends FlLocationPlatform {
   @override
   Future<LocationPermission> checkLocationPermission() async {
     // ref: https://developer.chrome.com/blog/permissions-api-for-the-web
-    final web.PermissionStatus permissionStatus =
-        await _permissions.query(_PermissionDesc(name: 'geolocation')).toDart;
+    final web.PermissionStatus permissionStatus = await _permissions
+        .query(_PermissionDesc(name: 'geolocation'))
+        .toDart;
 
     return toLocationPermission(permissionStatus.state);
   }
@@ -143,6 +144,7 @@ class FlLocationWeb extends FlLocationPlatform {
       millisecondsSinceEpoch: position.timestamp.toDouble(),
       timestamp: DateTime.fromMillisecondsSinceEpoch(position.timestamp),
       isMock: false,
+      provider: 'fused',
     );
   }
 

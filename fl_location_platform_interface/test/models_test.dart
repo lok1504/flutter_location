@@ -16,9 +16,12 @@ void main() {
       expect(location.heading, locationJson['heading']);
       expect(location.speed, locationJson['speed']);
       expect(location.speedAccuracy, locationJson['speedAccuracy']);
-      expect(location.millisecondsSinceEpoch,
-          locationJson['millisecondsSinceEpoch']);
+      expect(
+        location.millisecondsSinceEpoch,
+        locationJson['millisecondsSinceEpoch'],
+      );
       expect(location.isMock, locationJson['isMock']);
+      expect(location.provider, locationJson['provider']);
     });
 
     test('toJson test', () {
@@ -32,9 +35,12 @@ void main() {
       expect(location.heading, locationJson['heading']);
       expect(location.speed, locationJson['speed']);
       expect(location.speedAccuracy, locationJson['speedAccuracy']);
-      expect(location.millisecondsSinceEpoch,
-          locationJson['millisecondsSinceEpoch']);
+      expect(
+        location.millisecondsSinceEpoch,
+        locationJson['millisecondsSinceEpoch'],
+      );
       expect(location.isMock, locationJson['isMock']);
+      expect(location.provider, locationJson['provider']);
     });
 
     test('equals(true) test', () {

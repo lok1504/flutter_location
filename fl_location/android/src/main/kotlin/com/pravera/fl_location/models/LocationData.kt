@@ -9,7 +9,8 @@ data class LocationData(
 	val speed: Double,
 	val speedAccuracy: Double?,
 	val millisecondsSinceEpoch: Double,
-	val isMock: Boolean?
+	val isMock: Boolean?,
+	val provider: String
 ) {
 	fun toJson(): Map<String, Any?> {
 		val json = mutableMapOf<String, Any?>()
@@ -22,6 +23,7 @@ data class LocationData(
 		json["speedAccuracy"] = speedAccuracy
 		json["millisecondsSinceEpoch"] = millisecondsSinceEpoch
 		json["isMock"] = isMock
+		json["provider"] = provider
 
 		return json
 	}
