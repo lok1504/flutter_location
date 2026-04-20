@@ -1,19 +1,19 @@
 name: fl_location_web
 description: The web implementation of the fl_location plugin.
-homepage: https://github.com/Dev-hwang/flutter_location/tree/master/fl_location_web
-version: 5.0.0
+publish_to: "none"
 
 environment:
-  sdk: ">=3.4.0 <4.0.0"
-  flutter: ">=3.22.0"
+  flutter: ">=3.41.0"
+  sdk: ">=3.11.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  fl_location_platform_interface: ^5.1.0
-  web: ^1.1.0
+  fl_location_platform_interface:
+    path: ../fl_location_platform_interface
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:
