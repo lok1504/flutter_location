@@ -198,12 +198,6 @@ class LocationDataProvider(private val context: Context) {
 				val locationData = location.toLocationData() ?: return
 				callback.onUpdate(locationData)
 			}
-
-			override fun onLocationAvailability(availability: LocationAvailability) {
-				if (!availability.isLocationAvailable) {
-					callback.onError(ErrorCodes.LOCATION_SERVICES_NOT_AVAILABLE)
-				}
-			}
 		}
 	}
 
