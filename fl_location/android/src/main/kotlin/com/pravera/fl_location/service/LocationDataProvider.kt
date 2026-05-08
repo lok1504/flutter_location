@@ -85,8 +85,7 @@ class LocationDataProvider(private val context: Context) {
 						if (statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
 							try {
 								if (activity == null) {
-									Log.w(TAG, "RESOLUTION_REQUIRED but no Activity attached (running in service context). Attempting best-effort location updates.")
-									startLocationUpdates()
+									callback?.onError(ErrorCodes.LOCATION_SETTINGS_CHANGE_FAILED)
 									return@addOnFailureListener
 								}
 
