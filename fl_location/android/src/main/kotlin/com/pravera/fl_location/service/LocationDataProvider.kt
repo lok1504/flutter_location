@@ -85,7 +85,8 @@ class LocationDataProvider(private val context: Context) {
 						if (statusCode == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
 							try {
 								if (activity == null) {
-									callback?.onError(ErrorCodes.LOCATION_SETTINGS_CHANGE_FAILED)
+									Log.w(TAG, "RESOLUTION_REQUIRED but no Activity attached (running in service context). Attempting best-effort location updates.")
+									startLocationUpdates()
 									return@addOnFailureListener
 								}
 
@@ -197,6 +198,12 @@ class LocationDataProvider(private val context: Context) {
 				val locationData = location.toLocationData() ?: return
 				callback.onUpdate(locationData)
 			}
+
+			override fun onLocationAvailability(availability: LocationAvailability) {
+				if (!availability.isLocationAvailable) {
+					callback.onError(ErrorCodes.LOCATION_SERVICES_NOT_AVAILABLE)
+				}
+			}
 		}
 	}
 
@@ -205,11 +212,11 @@ class LocationDataProvider(private val context: Context) {
 		val interval = settings.interval ?: DEFAULT_LOCATION_INTERVAL
 		val distanceFilter = settings.distanceFilter ?: 0F
 
-        Log.d(TAG, "Starting location updates with interval: $interval ms, accuracy: $accuracy m, distanceFilter: $distanceFilter m")
+        Log.d(TAG, "🚀 Starting location updates with interval: $interval ms, accuracy: $accuracy m, distanceFilter: $distanceFilter m")
 
 		return LocationRequest.Builder(accuracy, interval).apply {
-			setMinUpdateDistanceMeters(distanceFilter)
-			setMinUpdateIntervalMillis(interval)
+            setMinUpdateDistanceMeters(distanceFilter.toFloat())
+            setMinUpdateIntervalMillis(interval.toLong() / 2)
             setMaxUpdateDelayMillis(0)
             setGranularity(Granularity.GRANULARITY_FINE)
             setWaitForAccurateLocation(true)
