@@ -134,7 +134,6 @@ class LocationDataProvider(private val context: Context) {
 						val locationData = location.toLocationData()
 						if (locationData != null) {
 							Log.d(TAG, "Initial location: ${location.latitude}, ${location.longitude}, accuracy: ${location.accuracy}m, provider: ${location.provider}")
-							callback?.onUpdate(locationData)
 						}
 					}
 				}
